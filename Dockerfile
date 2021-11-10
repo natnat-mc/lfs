@@ -18,8 +18,8 @@ COPY config.busybox /busybox-1.34.1/.config
 COPY --from=build-kernel /linux-out/usr/include /usr/include
 RUN cd /busybox-1.34.1 \
 	&& make -j24
-COPY initrd-init /initrd-init
-COPY mkinitrd /mkinitrd
+COPY init.sh /initrd-init
+COPY mkinitrd.sh /mkinitrd
 RUN chmod +x /mkinitrd \
 	&& /mkinitrd
 
