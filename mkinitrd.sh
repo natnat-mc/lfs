@@ -8,7 +8,7 @@ done
 
 # add busybox
 cd /initrd/bin
-cp /busybox-1.34.1/busybox .
+cp /busybox/busybox .
 chmod 755 busybox
 ln -s busybox sh
 
