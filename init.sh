@@ -2,7 +2,7 @@
 
 # mount some required stuff
 mount -t proc proc /proc
-mount -t sys sys /sys
+mount -t sysfs sys /sys
 mdev -s
 
 # display a warm welcome message
