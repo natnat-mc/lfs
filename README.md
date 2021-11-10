@@ -8,6 +8,6 @@ A custom WIP Linux From Scratch
 ## Launching
 - copy the `out` directory to somewhere
 ```
-linux <path/to/out>/vmlinuz
-initrd <path/to/out>/initrd.img.zst
+linux <path/to/out>/boot/vmlinuz
+initrd <path/to/out>/boot/initrd.img.zst
 ```
