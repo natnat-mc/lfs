@@ -10,4 +10,4 @@ clear
 echo "Hewwo from initrd!!!"
 
 # start an interactive shell
-sh -i
+exec sh -i
