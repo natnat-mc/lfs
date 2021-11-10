@@ -3,7 +3,7 @@
 FROM debian:11 AS build-kernel
 RUN apt-get update && apt-get upgrade -y && apt-get install --no-install-recommends xz-utils ca-certificates build-essential flex bison libssl-dev openssl zstd bc perl libelf-dev -y
 COPY vendor/linux.tar.xz /linux.tar.xz
-COPY config.linux /linux-out/.config
+COPY data/config.linux /linux-out/.config
 RUN export ARCH=x86_64 O=/linux-out \
 	&& mkdir /linux \
 	&& cd /linux \
@@ -18,13 +18,13 @@ RUN export ARCH=x86_64 O=/linux-out \
 FROM alpine:3.14 AS build-initrd
 RUN apk add --no-cache gcc make zstd cpio musl-dev
 COPY vendor/busybox.tar.bz2 /busybox.tar.bz2
-COPY config.busybox.initrd /busybox/.config
+COPY data/config.busybox.initrd /busybox/.config
 COPY --from=build-kernel /linux-out/usr/include /usr/include
 RUN cd /busybox \
 	&& tar xjf /busybox.tar.bz2 --strip-components 1 \
 	&& make -j24
-COPY init.sh /initrd-init
-COPY mkinitrd.sh /mkinitrd
+COPY data/init.sh /initrd-init
+COPY scripts/mkinitrd.sh /mkinitrd
 RUN chmod +x /mkinitrd \
 	&& /mkinitrd
 
@@ -33,7 +33,7 @@ RUN chmod +x /mkinitrd \
 FROM alpine:3.14 AS build-buildbase
 RUN apk add --no-cache gcc make musl-dev
 COPY vendor/busybox.tar.bz2 /busybox.tar.bz2
-COPY config.busybox.buildbase /busybox/.config
+COPY data/config.busybox.buildbase /busybox/.config
 COPY --from=build-kernel /linux-out/usr/include /usr/include
 RUN cd /busybox \
 	&& tar xjf /busybox.tar.bz2 --strip-components 1 \
