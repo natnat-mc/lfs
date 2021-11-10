@@ -1,0 +1,30 @@
+FROM debian:11 AS build-kernel
+RUN apt-get update && apt-get upgrade -y && apt-get install --no-install-recommends curl xz-utils ca-certificates build-essential flex bison libssl-dev openssl zstd bc perl libelf-dev -y
+RUN curl -sL "https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.15.1.tar.xz" | tar xJ
+COPY config.linux /linux-out/.config
+RUN export ARCH=x86_64 O=/linux-out \
+	&& cd /linux-5.15.1 \
+	&& make prepare O=$O ARCH=$ARCH \
+	&& make -j24 O=$O ARCH=$ARCH
+RUN export ARCH=x86_64 O=/linux-out \
+	&& cd /linux-5.15.1 \
+	&& make headers O=$O ARCH=$ARCH \
+	&& make bzImage O=$O ARCH=$ARCH
+
+FROM alpine:3.14 AS build-initrd
+RUN apk add --no-cache curl gcc make zstd cpio musl-dev
+RUN curl -sL "https://busybox.net/downloads/busybox-1.34.1.tar.bz2" | tar xj
+COPY config.busybox /busybox-1.34.1/.config
+COPY --from=build-kernel /linux-out/usr/include /usr/include
+RUN cd /busybox-1.34.1 \
+	&& make -j24
+COPY initrd-init /initrd-init
+COPY mkinitrd /mkinitrd
+RUN chmod +x /mkinitrd \
+	&& /mkinitrd
+
+FROM alpine:3.14 AS system
+COPY --from=build-kernel /linux-out/usr/include /out/usr/include
+COPY --from=build-kernel /linux-out/arch/x86/boot/bzImage /out/vmlinuz
+COPY --from=build-initrd /initrd.img.zst /out/initrd.img.zst
+COPY --from=build-initrd /initrd.img /out/initrd.img
