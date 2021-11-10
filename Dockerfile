@@ -88,6 +88,20 @@ RUN mkdir /perl \
 	&& make install \
 	&& rm -rf /perl.tar.gz
 
+# our buildbase from which we'll self-host
+FROM scratch AS buildbase
+COPY --from=build-buildbase /busybox/busybox /bin/busybox
+COPY --from=build-buildbase /busybox/busybox /bin/sh
+RUN /bin/busybox mkdir /sbin && /bin/busybox --install -s && unlink /bin/sh && ln -s busybox /bin/sh
+RUN mkdir /usr && ln -s /include /bin /sbin /usr
+COPY --from=build-kernel /linux-out/usr/include/* /include/
+COPY --from=build-buildbase /make/make /bin/make
+COPY --from=build-buildbase /musl /tmp/install/musl
+RUN cd /tmp/install/musl && make install && rm -rf /tmp/install
+COPY --from=build-buildbase /gawk/gawk /bin/gawk
+COPY --from=build-buildbase /opt/perl /opt/perl
+RUN ln -s /opt/perl/bin/perl /bin/perl
+
 # build a docker image which is our system so we can `docker cp` from it
 FROM scratch AS system
 COPY --from=build-kernel /linux-out/usr/include /out/usr/include
@@ -106,3 +120,4 @@ COPY --from=build-buildbase /gawk/gawk out/buildbase/bin/gawk
 COPY --from=build-buildbase /make/make out/buildbase/bin/make
 COPY --from=build-buildbase /perl/perl out/buildbase/bin/perl
 COPY --from=build-buildbase /opt out/buildbase/opt
+COPY --from=buildbase / /out/actual-buildbase
