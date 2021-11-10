@@ -9,5 +9,5 @@ A custom WIP Linux From Scratch
 - copy the `out` directory to somewhere
 ```
 linux <path/to/out>/vmlinuz
-initrd <path/to/out>/initrd.img
+initrd <path/to/out>/initrd.img.zst
 ```
