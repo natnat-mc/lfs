@@ -7,7 +7,3 @@ echo "Built system!"
 rm -rf out
 docker cp lfs:/out out
 echo "Copied system to out!"
-
-#sudo rm -rf /btrfs/tmp
-#sudo cp -r out /btrfs/tmp
-#echo "Installed system to /btrfs/tmp!"
