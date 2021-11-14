@@ -2,7 +2,8 @@
 A custom WIP Linux From Scratch
 
 ## Building
-- Requires `docker`, `curl`, `tar`, `xz` and `bz2`
+- Requires `docker` and `curl`
+`./vendor.sh`
 `./build.sh`
 
 ## Launching
